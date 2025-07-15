@@ -3,5 +3,5 @@ function sumOfTwo(a,b){
     return a+b;
 }
 
-var xy=2000;
-module.exports={sumOfTwo,xy};
+// var xy=2000;
+export default sumOfTwo;
