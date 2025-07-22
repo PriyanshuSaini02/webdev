@@ -1,154 +1,107 @@
-// const EventEmitter = require('node:events');
+document.addEventListener("DOMContentLoaded", () => {
+    let blogs = [];
 
-// const eventEmitter = new EventEmitter();
+    const blogList = document.getElementById("blogList");
+    const searchInput = document.getElementById("searchInput");
+    const authorFilter = document.getElementById("authorFilter");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const dateSort = document.getElementById("dateSort");
+    const navbarContainer = document.getElementById("navbarContainer");
 
-// eventEmitter.on('g5', () => {
-//     console.log('started');
-// });
+    if (navbarContainer) {
+        fetch("navbar.html")
+            .then(res => res.text())
+            .then(data => {
+                navbarContainer.innerHTML = data;
+            });
+    }
 
-// eventEmitter.emit('g5');
+    fetch("blogs.json")
+        .then(res => res.json())
+        .then(data => {
+            blogs = data;
+            populateFilters();
+            renderBlogs();
+        })
+        .catch(err => {
+            console.error("Failed to load blogs:", err);
+        });
 
-// eventEmitter.on('start', number => {
-//     console.log(`started ${number}`);
-// });
+    function populateFilters() {
+        const authors = [...new Set(blogs.map(b => b.author))];
+        const categories = [...new Set(blogs.map(b => b.category))];
 
-// eventEmitter.emit('start', 23);
+        if (authorFilter) {
+            authorFilter.innerHTML = `<option value="">All Authors</option>`;
+            authors.forEach(a => {
+                const option = document.createElement("option");
+                option.value = a;
+                option.textContent = a;
+                authorFilter.appendChild(option);
+            });
+        }
 
-// eventEmitter.once('once', () => {
-//     console.log('started once');
-// });
+        if (categoryFilter) {
+            categoryFilter.innerHTML = `<option value="">All Categories</option>`;
+            categories.forEach(c => {
+                const option = document.createElement("option");
+                option.value = c;
+                option.textContent = c;
+                categoryFilter.appendChild(option);
+            });
+        }
+    }
 
-// eventEmitter.removeListener('g5');
-// eventEmitter.emit('once');
-// eventEmitter.emit('once');
-// eventEmitter.emit('g5');
+    function renderBlogs() {
+        if (!blogList) return;
+        let filtered = [...blogs];
 
-// eventEmitter.removeAllListeners();
+        const keyword = searchInput?.value?.toLowerCase() || "";
+        if (keyword) {
+            filtered = filtered.filter(blog =>
+                blog.title.toLowerCase().includes(keyword) ||
+                blog.description.toLowerCase().includes(keyword)
+            );
+        }
 
-// eventEmitter.emit('start', 23);
+        if (authorFilter?.value) {
+            filtered = filtered.filter(blog => blog.author === authorFilter.value);
+        }
 
-// const dns = require('node:dns');
+        if (categoryFilter?.value) {
+            filtered = filtered.filter(blog => blog.category === categoryFilter.value);
+        }
 
-// dns.lookup('google.com', (err, address, family) => {
-//     console.log('address: %j family: IPv%s', address, family);
-// });
+        filtered.sort((a, b) => {
+            return dateSort?.value === "new"
+                ? new Date(b.date) - new Date(a.date)
+                : new Date(a.date) - new Date(b.date);
+        });
 
-// const dns = require('node:dns');
+        blogList.innerHTML = "";
+        for (let blog of filtered) {
+            const div = document.createElement("div");
+            div.className = "blog-card";
+            div.innerHTML = `
+                <h3>${blog.title}</h3>
+                <p>${blog.description}</p>
+                <a href="${blog.url}" target="_blank">Read More</a><br />
+                <small>Author: ${blog.author} | Category: ${blog.category} | Date: ${blog.date}</small>
+            `;
+            blogList.appendChild(div);
+        }
+    }
 
-// dns.resolve4('chitkara.edu.in', (err, addresses) => {
-//     if (err) throw err;
+    function debounce(func, delay) {
+        let timer;
+        return function () {
+            clearTimeout(timer);
+            timer = setTimeout(() => func.apply(this, arguments), delay);
+        };
+    }
 
-//     console.log(`addresses: ${JSON.stringify(addresses)}`);
-
-//     addresses.forEach((a) => {
-//         dns.reverse(a, (err, hostnames) => {
-//             if (err) {
-//                 throw err;
-//             }
-//             console.log(`reverse for ${a}: ${JSON.stringify(hostnames)}`);
-//         });
-//     });
-// });
-
-
-// const dns = require('node:dns');
-// const options = {
-//     family: 6,
-//     hints: dns.ADDRCONFIG | dns.V4MAPPED,
-// };
-// dns.lookup('google.com', options, (err, address, family) =>
-//     console.log('address: %j family: IPv%s', address, family));
-// // address: "2606:2800:21f:cb07:6820:80da:af6b:8b2c" family: IPv6
-
-// // When options.all is true, the result will be an Array.
-// options.all = true;
-// dns.lookup('google.com', options, (err, addresses) =>
-//     console.log('addresses: %j', addresses));
-// // addresses: [{"address":"2606:2800:21f:cb07:6820:80da:af6b:8b2c","family":6}]
-
-
-// const dns = require('node:dns');
-// dns.lookupService('127.0.0.1', 22, (err, hostname, service) => {
-//     console.log(hostname, service);
-//     // Prints: localhost ssh
-// });
-
-// Callback-based API
-const dns =require('node:dns');
-
-// 1. dns.lookup
-dns.lookup('google.com', (err, addr, family) => {
-    console.log('lookup →', { addr, family });
-});
-
-// 2. dns.resolve* (A, AAAA, MX, TXT, etc.)
-dns.resolve4('google.com', (err, addrs) => {
-    console.log('resolve4 →', addrs);
-});
-dns.resolve6('google.com', (err, addrs) => {
-    console.log('resolve6 →', addrs);
-});
-dns.resolveMx('google.com', (err, mx) => {
-    console.log('resolveMx →', mx);
-});
-dns.resolveTxt('google.com', (err, txt) => {
-    console.log('resolveTxt →', txt);
-});
-dns.resolveNs('google.com', (err, ns) => {
-    console.log('resolveNs →', ns);
-});
-dns.resolveSrv('google.com', (err, srv) => {
-    console.log('resolveSrv →', srv);
-});
-dns.resolveCname('www.google.com', (err, cname) => {
-    console.log('resolveCname →', cname);
-});
-dns.resolveSoa('google.com', (err, soa) => {
-    console.log('resolveSoa →', soa);
-});
-dns.resolveNaptr('google.com', (err, naptr) => {
-    console.log('resolveNaptr →', naptr);
-});
-dns.resolvePtr('8.8.8.8', (err, ptr) => {
-    console.log('resolvePtr →', ptr);
-});
-dns.resolveAny('google.com', (err, any) => {
-    console.log('resolveAny →', any);
-});
-
-// 3. dns.reverse
-dns.reverse('8.8.8.8', (err, hostnames) => {
-    console.log('reverse →', hostnames);
-});
-
-// 4. dns.lookupService
-dns.lookupService('8.8.8.8', 53, (err, hostname, service) => {
-    console.log('lookupService →', { hostname, service });
-});
-
-// Promise-based API
-const {   dnsPromises, Resolver } =require('node:dns');
-
-// 5. Using dnsPromises
-// (async () => {
-//     try {
-//         console.log('promises.lookup →', await dnsPromises.lookup('example.com'));
-//         console.log('promises.resolve4 →', await dnsPromises.resolve4('example.com'));
-//         console.log('promises.resolveAny →', await dnsPromises.resolveAny('example.com'));
-//         console.log('promises.reverse →', await dnsPromises.reverse('8.8.8.8'));
-//     } catch (e) {
-//         console.error(e);
-//     }
-// })();
-
-// 6. dnsPromises.setServers / getDefaultResultOrder
-// dnsPromises.setServers(['1.1.1.1', '8.8.8.8']);
-// console.log('getDefaultResultOrder →', dnsPromises.getDefaultResultOrder());
-// dnsPromises.setDefaultResultOrder('ipv4first');
-
-// 7. dns.Resolver (custom resolver)
-const resolver = new Resolver();
-resolver.setServers(['8.8.4.4']); // use custom DNS
-resolver.resolveTxt('example.com', (err, records) => {
-    console.log('Resolver resolveTxt →', records);
+    searchInput?.addEventListener("input", debounce(renderBlogs, 300));
+    authorFilter?.addEventListener("change", renderBlogs);
+    categoryFilter?.addEventListener("change", renderBlogs);
+    dateSort?.addEventListener("change", renderBlogs);
 });

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+    <div id="navbarContainer"></div>
+
+    <div class="container">
+        <h2>Admin Panel</h2>
+        <form class="admin-form" id="adminForm">
+            <input type="text" placeholder="Blog Title" id="titleInput" required />
+            <input type="text" placeholder="Blog Description" id="descInput" required />
+            <input type="url" placeholder="Blog URL" id="urlInput" required />
+            <input type="text" placeholder="Author" id="authorInput" required />
+            <input type="text" placeholder="Category" id="categoryInput" required />
+            <input type="date" id="dateInput" required />
+            <button type="submit">Add Blog</button>
+        </form>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+
+</html>

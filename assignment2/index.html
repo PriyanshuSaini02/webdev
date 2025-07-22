@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Page</title>
+    <link rel="stylesheet" href="home.css">
+</head>
+
+<body>
+
+    <div id="navbarContainer"></div>
+
+    <div class="container">
+        <div class="search-filter">
+            <input type="text" placeholder="Search by title or description" id="searchInput" />
+            <select id="authorFilter"></select>
+            <select id="categoryFilter"></select>
+            <select id="dateSort">
+                <option value="new">Newest First</option>
+                <option value="old">Oldest First</option>
+            </select>
+        </div>
+
+        <div class="blog-list" id="blogList"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

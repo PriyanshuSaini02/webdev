@@ -1,0 +1,19 @@
+[
+    {
+        "title": "Apple",
+        "description": "An apple is the round, edible fruit of an apple tree",
+        "url": "https://en.wikipedia.org/wiki/Apple",
+        "author": "Priyanshu",
+        "category": "Fruit",
+        "date": "2025-07-22"
+    },
+    {
+        "title": "Iphone",
+        "description": "The iPhone is a line of smartphones developed and marketed by Apple that run iOS, the company's own mobile operating system.",
+        "url": "https://www.apple.com/in/iphone/",
+        "author": "Xyz",
+        "category": "Device",
+        "date": "2025-07-21"
+    }
+]
+
