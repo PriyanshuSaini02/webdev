@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const category = document.getElementById("categoryInput");
         const date = document.getElementById("dateInput");
 
-        if (!titleEl || !desc || !url || !author || !category || !date) {
+        if (!title || !desc || !url || !author || !category || !date) {
             alert("Some input fields are missing.");
             return;
         }
