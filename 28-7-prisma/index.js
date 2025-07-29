@@ -1,13 +1,10 @@
-// 1
-import { PrismaClient } from './generated/prisma'
-import { withAccelerate } from '@prisma/extension-accelerate'
+const { PrismaClient } = require('./generated/prisma')
 
-// 2
 const prisma = new PrismaClient()
-    .$extends(withAccelerate())
 
-// 3
 async function main() {
+    // ... you will write your Prisma Client queries here
+
     await prisma.user.create({
         data: {
             name: 'Alice',
@@ -20,16 +17,22 @@ async function main() {
             },
         },
     })
+
+    const allUsers = await prisma.user.findMany({
+        include: {
+            posts: true,
+            profile: true,
+        },
+    })
+    console.dir(allUsers, { depth: null })
 }
 
-// 4
 main()
     .then(async () => {
         await prisma.$disconnect()
     })
     .catch(async (e) => {
         console.error(e)
-        // 5
         await prisma.$disconnect()
         process.exit(1)
     })
