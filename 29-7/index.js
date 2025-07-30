@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const port = 3000
 const path = require('path');
+const { nextTick } = require('process');
 
 // app.get('/', (req, res) => {
 //     res.send('Hello World!')
@@ -27,21 +28,13 @@ const path = require('path');
 // })
 
 // Serve static files from 'public' at root
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
-// Serve static files from 'public' at '/static' route
-app.use('/static', express.static(path.join(__dirname, 'public')));
-app.get('/', (req, res) => {
-    res.send('<img src="/public/kitten.jpeg" alt="Cute Kitten">');
-});
-
-// app.use('/user', (req, res) => {
-//     res.send('user 2')
-// })
-
-// app.all('/user2', (req, res) => {
-//     res.send('user 1')
-// })
+// // Serve static files from 'public' at '/static' route
+// app.use('/static', express.static(path.join(__dirname, 'public')));
+// app.get('/', (req, res) => {
+//     res.send('<img src="/public/kitten.jpeg" alt="Cute Kitten">');
+// });
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
