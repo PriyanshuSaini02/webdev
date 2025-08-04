@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>products</title>
+</head>
+
+<body>
+    {{> navbar }}
+    <ul class="products_list">
+        {{#each products}}
+        <li>
+            <p>{{this}}</p>
+        </li>
+        {{/each}}
+    </ul>
+</body>
+
+</html>
