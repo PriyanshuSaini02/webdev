@@ -1,7 +1,9 @@
 //REQUIRE OR IMPORT ALL THE MODULES HERE ONLY
 const express = require("express");
 require("dotenv").config();
-const mongoose = require("mongoose");
+
+const dbConnect=require("./config/database")
+
 const userRouter = require("./routes/userRoutes");
 
 //SET INSTANCES HERE ONLY
@@ -31,12 +33,9 @@ app.get("/", (req, res) => {
 
 app.use("/api/user", userRouter)
 
-
-async function dbConnect() {
-    await mongoose.connect(process.env.CONNECTION_URI).then(() => {
-        console.log("DB CONNECTED");
-    });
-}
+app.use("/",function(req,res){
+    res.status(501).send(message.err);
+})
 
 dbConnect().then(() => {
     app.listen(PORT, () => {
