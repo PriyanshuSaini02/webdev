@@ -2,9 +2,11 @@
 const express = require("express");
 require("dotenv").config();
 
-const dbConnect=require("./config/database")
+//IMPORT DB CONNECTION
+const dbConnect = require("./config/database");
 
 const userRouter = require("./routes/userRoutes");
+const profileRouter = require("./routes/profileRoutes");
 
 //SET INSTANCES HERE ONLY
 const app = express();
@@ -18,24 +20,23 @@ const PORT = process.env.PORT || 4888;
 // I WANT TO RUN A MIDDLEWARE
 app.use(express.json());
 
-app.use(function (req, res, next) {
-    console.log("THIS IS GLOBAL APP MIDDLWARE");
-    next()
+
+//WE WILL MAKE ROUTES
+
+app.use("/api/user", userRouter);
+
+app.use("/api/profile/", profileRouter)
+
+
+
+// ERROR HANDLER
+
+app.use("/", function (req, res) {
+    res.status(500).json({ message: "SOMETHING HAPPENED" });
 })
 
-//WE WILLL MAKE ROUTES
 
-//END POINTS : USER
 
-app.get("/", (req, res) => {
-    res.send({ message: "THIS IS DASHBOARD" })
-})
-
-app.use("/api/user", userRouter)
-
-app.use("/",function(req,res){
-    res.status(501).send(message.err);
-})
 
 dbConnect().then(() => {
     app.listen(PORT, () => {

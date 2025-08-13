@@ -9,7 +9,10 @@
 
     {{!-- <h1>{{message}}</h1> --}}
     <p>{{firstname}} {{lastname}}</p>
-    
+    <form action="/profile" method="post" enctype="multipart/form-data">
+        <input type="file" name="avatar" />
+        <button type="submit">Submit</button>
+    </form>
 </body>
 
 </html>

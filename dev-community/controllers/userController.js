@@ -1,15 +1,13 @@
-const jwt = require('jsonwebtoken');
 const User = require("../models/userModel");
-require("dotenv").config();
-const bcrypt=require("bcrypt")
-const generateToken=require("../middlewares/auth")
+const bcrypt = require("bcrypt");
+const generateToken = require("../utils/generateToken");
 
 const registerUser = async (req, res) => {
     const { firstName, lastName, emailId, password } = req.body;
 
     //VALIDATION
 
-    if (!firstName || !lastName || !emailId || !password) {
+    if (!firstName || !emailId || !password) {
         return res.status(400).send({ message: "Please Add all mandatory fields" });
     }
 
@@ -19,57 +17,64 @@ const registerUser = async (req, res) => {
         return res.status(400).json({ message: "Already Exist" });
     }
 
-    try{
-        //CREATE USER IN YOUR DATABASE
+    try {
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        //CREATE USER IN YOUR DATABASE
         const newUser = await User.create({
             firstName,
             lastName,
             emailId,
-            password: hashedPassword
+            password: hashedPassword,
         });
 
         await newUser.save();
-        // const tokenGen = generateToken(newUser._id)
+
+        const tokenGen = generateToken(newUser)
 
         return res.status(201).json({
-            message: "USER CREATED",
+            message: "User Registered Successfully",
             data: {
                 firstName,
                 emailId,
-                hashedPassword
-            }
+                hashedPassword,
+                tokenGen
+            },
         });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
     }
-    catch(err){
-        return res.status(500).send({err:err.message});
-    }
-}
+};
 
-const loginUser = async(req,res) => {
-    const {emailId,password}=req.body;
-    if(!emailId || !password){
-        return res.send(400).send("Please fill all the detail")
+const loginUser = async (req, res) => {
+    const { emailId, password } = req.body;
+
+    //Validation:
+    if (!emailId || !password) {
+        return res.status(400).send("Please Fill All the Details");
     }
-    let userExist = await User.findOne({ emailId });
-    if (!userExist) {
-        return res.status(400).send('Invalid credentials');
+
+    const userExists = await User.findOne({ emailId });
+
+    if (!userExists) {
+        return res.status(400).send("User not found !!");
     }
-    try{
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).message("invalid credentials")
+
+    try {
+        const isMatched = await bcrypt.compare(password, userExists.password);
+
+        if (!isMatched) {
+            return res.status(401).send("Password is Wrong");
         }
-        // const tokenGen = generateToken(userExist)
-        return res.status(200).json({
-            message: "user loged in successfully",
-            First_Name: userExist.firstName,
-            email: userExist.emailId
-        })
-    }
-    catch(err){
-        res.status(500).send({ err: err.message })
-    }
-}
 
-module.exports = { registerUser,loginUser}
+        return res.status(200).json({
+            message: "User Logged In Successfully",
+            userName: userExists.firstName,
+            emailId: userExists.emailId,
+        });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+};
+
+module.exports = { registerUser, loginUser };
