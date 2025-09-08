@@ -1,95 +1,82 @@
-const express = require('express')
-const app = express()
-
-var hbs = require('hbs');
-const multer = require('multer')
+const express = require('express');
+const app = express();
+const hbs = require('hbs');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const path = require('path');
-// const upload = multer({ dest: 'uploads/' })
-// var diskStorage = require('./storage/disk')
-// var memoryStorage = require('./storage/memory')
-const port = 3000
-const router = express.Router()
-// const hbs=require('hbs');
 
-// app.response.sendStatus = function (statusCode, type, message) {
-//     return this.contentType(type)
-//         .status(statusCode)
-//         .send(message)
-// }
+const port = 3000;
 
-// app.get("/",(req,res)=>{
-//     res.sendStatus(200, 'text/plain', '{"message":"ok"}')
+// Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-// })
+// Cloudinary config (replace with your credentials)
+cloudinary.config({
+    cloud_name: 'YOUR_CLOUD_NAME',
+    api_key: 'YOUR_API_KEY',
+    api_secret: 'YOUR_API_SECRET'
+});
 
-// app.get("/error", (req, res) => {
-//     res.sendStatus(400, 'text/plain', '{"error":"error"}')
-
-// })
-// app.get("/unauthorized", (req, res) => {
-//     res.sendStatus(401, 'text/plain', '{"error":"unauthorized"}')
-// })
-// app.get("/notfound", (req, res) => {
-//     res.sendStatus(404, 'application/json', '{"error":"resource not found"}')
-// })
-// app.get("/internal", (req, res) => {
-//     res.sendStatus(500, 'text/plain', '{"error":"internal"}')
-
-// })
-
-const uploadPath = path.join(__dirname, 'uploads');
-
-// Ensure folder exists
-if (!fs.existsSync(uploadPath)) {
-    fs.mkdirSync(uploadPath, { recursive: true });
-}
+// Multer temp storage for uploading before sending to Cloudinary
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, '/main/webdev/1-8/uploads')
+        const tempPath = path.join(__dirname, 'temp');
+        if (!fs.existsSync(tempPath)) {
+            fs.mkdirSync(tempPath, { recursive: true });
+        }
+        cb(null, tempPath);
     },
     filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        cb(null, file.fieldname + '-' + uniqueSuffix)
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
-})
+});
+const upload = multer({ storage: storage });
 
-const upload = multer({ storage: storage })
+// File upload route with Cloudinary
+app.post('/profile', upload.single('avatar'), async function (req, res) {
+    try {
+        console.log(req.body);
+        console.log(req.file);
 
-app.post('/profile', upload.single('avatar'), function (req, res, next) {
-    app.use(express.urlencoded({extended:true}))
-    console.log(req.body);
-    console.log(req.file);
-    return res.redirect('/')
-    // req.file is the `avatar` file
-    // req.body will hold the text fields, if there were any
-})
+        // Upload to Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'profile_pics' // Optional folder in Cloudinary
+        });
 
-hbs.registerPartials(__dirname + '/views/partials', function (err) { });
+        console.log('Cloudinary URL:', result.secure_url);
 
+        // Delete temp file after upload
+        fs.unlinkSync(req.file.path);
+
+        res.send(`Uploaded to Cloudinary: <a href="${result.secure_url}" target="_blank">${result.secure_url}</a>`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Cloudinary upload failed');
+    }
+});
+
+// HBS setup
+hbs.registerPartials(__dirname + '/views/partials');
 app.set('view engine', 'html');
 app.engine('html', require('hbs').__express);
 
-
+// Routes
 app.get("/", (req, res) => {
     res.render('home.hbs', {
         firstname: "Priyanshu",
-        lastname: "Saini Sir"
-    })
-})
-
+        lastname: "Saini"
+    });
+});
 
 app.get("/products", (req, res) => {
     res.render('products.hbs', {
-        products: [
-            "Watch",
-            "Shirts",
-            "Sunglasses",
-        ],
-    })
-})
-
+        products: ["Watch", "Shirts", "Sunglasses"]
+    });
+});
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-})
+    console.log(`Example app listening on port ${port}`);
+});

@@ -11,7 +11,4 @@ router.post("/", authMiddleware, addProfileDetails)
 
 
 
-
-
-
 module.exports = router;
